@@ -28,8 +28,20 @@ GCS="${GCS:-127.0.0.1:14550}"
 HOME_LAT="${HOME_LAT:-52.4064}"
 HOME_LON="${HOME_LON:-16.9252}"
 HOME_ALT="${HOME_ALT:-80}"
-# Number of drones: the first argument, 1 if none was given.
 COUNT="${1:-1}"
+
+if ! [[ "$COUNT" =~ ^[1-9][0-9]*$ ]] || (( COUNT > 255 )); then
+    echo "Wrong number of drones. Please specify a number between 1 and 255." >&2
+    exit 1
+fi
+
+# Use plain docker if we are allowed to talk to the Docker daemon (user is in the "docker" group),
+# otherwise fall back to sudo. "docker info" fails when there is no access or the daemon is down.
+DOCKER="docker"
+if ! docker info >/dev/null 2>&1; then
+    DOCKER="sudo docker"
+fi
+
 
 # Stop and remove any existing drone containers, so we start fresh.
 "$REPO_ROOT/scripts/drones-down.sh"
@@ -56,7 +68,7 @@ for ((i = 1; i <= COUNT; i++)); do
     #   --defaults          default copter parameters
     #   --home              lat,lon,alt,heading (heading 0 = facing north)
     #   --serial0           send telemetry from SERIAL0 to the GCS over UDP
-    docker run \
+    $DOCKER run \
         --detach \
         --name "$name" \
         --label drone-sim \
