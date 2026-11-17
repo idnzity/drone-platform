@@ -9,7 +9,7 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
     echo "Example: ./scripts/drones-up.sh 3 will start 3 drones."
     echo "You can also set the following environment variables:"
     echo "  IMAGE: The docker image to use (default: ardupilot:latest)"
-    echo "  ARDUPILOT_DIR: The path to the ardupilot directory (default: current directory/ardupilot)"
+    echo "  ARDUPILOT_DIR: The path to the ardupilot directory (default: current repo/ardupilot)"
     echo "  GCS: The address of the ground control station (default: localhost:14550)"
     echo "  HOME_LAT: The home latitude (default: 52.4064)"
     echo "  HOME_LON: The home longitude (default: 16.9252)"
@@ -42,7 +42,6 @@ if ! docker info >/dev/null 2>&1; then
     DOCKER="sudo docker"
 fi
 
-
 # Stop and remove any existing drone containers, so we start fresh.
 "$REPO_ROOT/scripts/drones-down.sh"
 
@@ -53,7 +52,7 @@ for ((i = 1; i <= COUNT; i++)); do
     instance=$(( i - 1 ))
 
     echo "starting drone $name"
-    # Start the simulator in a container. A comment can't sit inside a multi-line command
+    # Start the simulator in a container.
     # docker run:
     #   --detach            run in the background; docker prints only the container id
     #   --label drone-sim   tag that drones-down.sh uses to find our containers
