@@ -1,1 +1,4 @@
 ardupilot/
+bin/
+obj/
+.idea/
